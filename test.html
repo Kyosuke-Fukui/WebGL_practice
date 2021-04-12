@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas"></canvas>
+    <script src="three.min.js"></script>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", init);
+
+      function init() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        //シーン（仮想的な３D空間）
+        var scene = new THREE.Scene();
+
+        let axes = new THREE.AxesHelper(2);
+        scene.add(axes);
+
+        //カメラの設定
+        var fov = 45; // 視野角：0～90
+        var aspect = width / height; // 縦横比
+        var near = 1; // 視体積手前までの距離
+        var far = 1000; // 視体積奥までの距離
+        var camera = new THREE.PerspectiveCamera(fov, aspect, near, far); // カメラの生成
+        camera.position.set(1, 1, 5); // カメラ位置の設定
+        // camera.up.set(0, 0, 1); // カメラの上方向ベクトルの設定
+        // camera.lookAt({ x: 0, y: 0, z: 0 }); // カメラ視野の中心座標の設定
+
+        // WebGLのレンダリングをするためのレンダラーを作成
+        const renderer = new THREE.WebGLRenderer({
+          canvas: document.querySelector("#myCanvas"),
+          alpha: true, //背景を透明に
+        });
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(width, height);
+        // スマホでも綺麗に見えるように、デバイスピクセル比も設定
+        renderer.setPixelRatio(window.devicePixelRatio);
+        // document.body.appendChild(renderer.domElement);
+        // 描画しない部分を空色に設定。2番目の引数はアルファ値
+        renderer.setClearColor(0x90d7ec, 1);
+
+        //形状の設定（頂点情報や面情報）
+        var geometry = new THREE.BoxGeometry(1, 1, 1);
+        //素材の設定（色や質感の情報）
+        var material = new THREE.MeshLambertMaterial({ color: "green" });
+        //立方体の作成（メッシュという表示オブジェクトを使用する）
+        var cube = new THREE.Mesh(geometry, material);
+        cube.rotation.x = Math.PI / 4;
+        cube.rotation.y = Math.PI / 4;
+        scene.add(cube);
+
+        var sphere = new THREE.Mesh(
+          new THREE.SphereGeometry(1, 25, 25),
+          new THREE.MeshLambertMaterial({
+            color: 0x0000ff,
+            wireframe: true,
+          })
+        );
+
+        scene.add(sphere);
+
+        var material2 = new THREE.MeshBasicMaterial({ color: 0xeeee00 });
+        var geometry2 = new THREE.CircleGeometry(1, 4, Math.PI / 2);
+        var mesh = new THREE.Mesh(geometry2, material2);
+        scene.add(mesh);
+
+        // ライトを作る
+        // new THREE.DirectionalLight(色、光の強さ)
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        scene.add(light);
+        // ライトの位置を変更
+        light.position.set(100, 100, 100);
+
+        // 描画
+
+        // renderer.render(scene, camera);
+
+        var animate = function () {
+          requestAnimationFrame(animate);
+
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
+          sphere.rotation.x -= 0.01;
+          sphere.rotation.y -= 0.01;
+
+          renderer.render(scene, camera);
+        };
+
+        animate();
+      }
+    </script>
+  </body>
+</html>

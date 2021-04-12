@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>My first three.js app</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      #myCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas"></canvas>
+    <script src="three.min.js"></script>
+    <script>
+      window.addEventListener("DOMContentLoaded", init);
+
+      function init() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        //シーン（仮想的な３D空間）
+        var scene = new THREE.Scene();
+
+        let axes = new THREE.AxesHelper(1000);
+        scene.add(axes);
+
+        //カメラの設定
+        var fov = 45; // 視野角：0～90
+        var aspect = width / height; // 縦横比
+        var near = 1; // 視体積手前までの距離
+        var far = 1000; // 視体積奥までの距離
+        var camera = new THREE.PerspectiveCamera(fov, aspect, near, far); // カメラの生成
+        camera.position.set(15, 10, 50); // カメラ位置の設定
+        // camera.up.set(0, 0, 1); // カメラの上方向ベクトルの設定
+        // camera.lookAt({ x: 0, y: 0, z: 0 }); // カメラ視野の中心座標の設定
+
+        // WebGLのレンダリングをするためのレンダラーを作成
+        const renderer = new THREE.WebGLRenderer({
+          canvas: document.querySelector("#myCanvas"),
+          alpha: true, //背景を透明に
+        });
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(width, height);
+        // スマホでも綺麗に見えるように、デバイスピクセル比も設定
+        renderer.setPixelRatio(window.devicePixelRatio);
+        // document.body.appendChild(renderer.domElement);
+        // 描画しない部分を空色に設定。2番目の引数はアルファ値
+        // renderer.setClearColor(0x90d7ec, 1);
+
+        // THREE.CylinderGeometry(上面円の半径, 下面円の半径, 高さ, 縦分割数, 横分割数, 上下面を無くすか否か)
+        var geometry = new THREE.CylinderGeometry(5, 5, 15, 25, 25, false);
+        var material = new THREE.MeshBasicMaterial({
+          // map: texture, // テクスチャーを指定
+          color: 0x007eff, // 色
+          transparent: true, // 透明の表示許可
+          blending: THREE.AdditiveBlending, // ブレンドモード
+          side: THREE.DoubleSide, // 表裏の表示設定
+          depthWrite: false, // デプスバッファへの書き込み可否
+        });
+        // 光る柱のメッシュを作成
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(0, 7.5, 0);
+        scene.add(mesh);
+
+        // THREE.TorusGeometry(半径, 太さ, 放射状の分割数, 管の分割数)
+        var geometry2 = new THREE.TorusGeometry(6, 3, 2, 100);
+        var material2 = new THREE.MeshBasicMaterial({
+          color: 0x007eff,
+          // map: texture,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          side: THREE.FrontSide,
+        });
+        var mesh2 = new THREE.Mesh(geometry2, material2);
+        mesh2.rotation.x = (90 * Math.PI) / 180; // 90度回転
+        mesh2.position.y = 0.01; // 少しだけ浮かせる
+
+        scene.add(mesh2);
+
+        renderer.render(scene, camera);
+
+        var animate = function () {
+          requestAnimationFrame(animate);
+
+          var angle;
+          angle++; // 角度をインクリメント
+          mesh2.rotation.y = (angle * Math.PI) / 180; // 回転
+
+          renderer.render(scene, camera);
+        };
+
+        // animate();
+      }
+    </script>
+  </body>
+</html>
