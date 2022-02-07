@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="myCanvas"></canvas>
+
+    <script type="module">
+        import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.119.1/build/three.module.js";
+
+        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/controls/OrbitControls.js';
+
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            100
+        );
+        camera.position.z = 2;
+
+        const light = new THREE.DirectionalLight();
+        light.position.set(2, 2, 10);
+        scene.add(light);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+
+        const geometry = new THREE.BoxGeometry();
+        var materials = [
+            new THREE.MeshPhongMaterial({
+                color: 0x00ff00
+            }),
+            new THREE.MeshPhongMaterial({
+                color: 0x00ff00
+            }),
+            new THREE.MeshPhongMaterial({
+                color: 0x00ff00
+            }),
+            new THREE.MeshPhongMaterial({
+                color: 0x00ff00
+            }),
+            new THREE.MeshPhongMaterial({
+                color: 0x00ff00
+            }),
+            new THREE.MeshPhongMaterial({
+                color: 0x00ff00
+            })
+        ];
+        const cube = new THREE.Mesh(geometry, materials);
+        scene.add(cube);
+
+        window.addEventListener(
+            "resize",
+            () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                render();
+            },
+            false
+        );
+
+        renderer.domElement.addEventListener("mousemove", onMouseMove, false);
+
+        const raycaster = new THREE.Raycaster();
+        let activeFaceIndex = 0;
+        function onMouseMove(event) {
+            raycaster.setFromCamera(
+                {
+                    x: (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
+                    y: -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
+                },
+                camera
+            );
+
+            const intersects = raycaster.intersectObject(cube, false);
+
+            if (intersects.length > 0) {
+                if (
+                    intersects[0].face.materialIndex !== activeFaceIndex &&
+                    activeFaceIndex !== -1
+                ) {
+                    materials[activeFaceIndex].color.setHex(0x00ff00);
+                }
+                activeFaceIndex = intersects[0].face.materialIndex;
+                materials[activeFaceIndex].color.setHex(0xff0000);
+            } else {
+                if (activeFaceIndex !== -1) {
+                    materials[activeFaceIndex].color.setHex(0x00ff00);
+                }
+                activeFaceIndex = -1;
+            }
+        }
+
+        var animate = function () {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            controls.update();
+            render();
+        };
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+
+    </script>
+</body>
+
+</html>
